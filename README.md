@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Emergency Blood & Donor Coordination System
 
 University web application project demonstrating core Java EE concepts with Jakarta Servlets 6.0, JSP, JSTL, plain JDBC and MySQL.
@@ -201,3 +202,7 @@ mvn clean package cargo:run
 - Password reset, email notifications
 
 The schema, enums, DAO interfaces and `BloodCompatibility` are already designed for these.
+=======
+# java_project_blood_donor
+An online platform that connects patients/hospitals requiring blood with registered blood donors.  The system maintains donor information, blood groups, availability, blood requests, donation history, and emergency requests. It helps users quickly identify suitable donors and allows hospitals or authorized users to coordinate blood requirements.
+>>>>>>> 83e3a4d01e70ece9dd46f1ea7142c200ee2224ea
