@@ -1,0 +1,145 @@
+<%--
+    The shared body of all four dashboards.
+
+    WHY a fragment: the greeting, the live record counts and the
+    "how you reached this page" explanation are identical for every role. Copying
+    them into four files means four places to fix when something changes. Only the
+    role-specific "what you can do here" list differs, and each dashboard.jsp
+    passes that in as the request attribute `roleTasks`.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+<c:set var="user" value="${requestScope.loggedInUser}"/>
+<c:set var="userCount" value="${requestScope.userCount}"/>
+<c:set var="donorCount" value="${requestScope.donorCount}"/>
+<c:set var="hospitalCount" value="${requestScope.hospitalCount}"/>
+<c:set var="roleTasks" value="${requestScope.roleTasks}"/>
+
+<div class="container py-4">
+
+    <%--
+        The proof that login worked: this name was read from MySQL, placed in the
+        session by SessionUtil, and read back out of the session here.
+    --%>
+    <div class="mb-4">
+        <span class="badge text-bg-light border mb-2">
+            <c:out value="${user.role.displayName}"/> account
+        </span>
+        <h1 class="h3 mb-1">Welcome, <c:out value="${user.name}"/></h1>
+        <p class="text-secondary small mb-0">
+            Signed in as <c:out value="${user.email}"/> &middot; role
+            <code><c:out value="${user.role}"/></code> &middot; status
+            <c:out value="${user.status.displayName}"/>
+            <c:if test="${not empty user.createdAt}">
+                &middot; registered <c:out value="${user.createdAt}"/>
+            </c:if>
+        </p>
+    </div>
+
+    <%--
+        LIVE counts only. Every number below is a real COUNT(*) executed against
+        MySQL while this page was being served. Nothing here is hard-coded, so the
+        figures change the moment somebody registers, and a fresh reload after
+        creating a user will show the new total.
+    --%>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="small text-secondary mb-1">Registered accounts</p>
+                    <p class="h3 mb-0"><c:out value="${userCount}" default="&mdash;"/></p>
+                    <p class="small text-secondary mb-0 mt-1"><code>SELECT COUNT(*) FROM users</code></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="small text-secondary mb-1">Donor profiles</p>
+                    <p class="h3 mb-0"><c:out value="${donorCount}" default="&mdash;"/></p>
+                    <p class="small text-secondary mb-0 mt-1"><code>SELECT COUNT(*) FROM donors</code></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="small text-secondary mb-1">Hospitals &amp; blood banks</p>
+                    <p class="h3 mb-0"><c:out value="${hospitalCount}" default="&mdash;"/></p>
+                    <p class="small text-secondary mb-0 mt-1"><code>SELECT COUNT(*) FROM hospitals</code></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="small text-secondary mb-1">Your account status</p>
+                    <p class="h6 mb-0"><c:out value="${user.status.displayName}"/></p>
+                    <p class="small text-secondary mb-0 mt-1">From <code>users.status</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h2 class="h5">What this account can do</h2>
+                    <c:choose>
+                        <c:when test="${empty roleTasks}">
+                            <p class="small text-secondary mb-0">Nothing further in this phase.</p>
+                        </c:when>
+                        <c:otherwise>
+                            <%--
+                                roleTasks is a List of "title::description" strings built by
+                                DashboardServlet. Iterating a collection with c:forEach is
+                                the JSTL collections requirement, and keeping the copy in
+                                Java means it can be explained (and changed) in one place
+                                rather than being hard-coded in markup.
+                            --%>
+                            <ul class="small text-secondary mb-0 ps-3">
+                                <c:forEach var="task" items="${roleTasks}">
+                                    <li class="mb-2">
+                                        <strong><c:out value="${task.title}"/></strong>
+                                        &mdash; <c:out value="${task.description}"/>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">How you reached this page</h2>
+                    <p class="small text-secondary">
+                        Three mechanisms working together &mdash; a good viva question:
+                    </p>
+                    <ol class="small text-secondary mb-0 ps-3">
+                        <li class="mb-2">
+                            <code>LoginServlet</code> called
+                            <code>user.getDashboardPath()</code> on a
+                            <code>User</code> reference, and the JVM selected the override
+                            belonging to your subclass.
+                        </li>
+                        <li class="mb-2">
+                            <code>SessionUtil</code> stored your user id, role and that
+                            dashboard path in a brand-new session, invalidating the old one.
+                        </li>
+                        <li>
+                            <code>AuthFilter</code> compared the session role with this URL
+                            area <em>before</em> this page was allowed to render. Any other
+                            role would have received a 403.
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>Emergency Blood &amp; Donor Coordination System</display-name>
+
+    <!--
+      WHY web.xml AT ALL when the servlets use @WebServlet and the filter uses
+      @WebFilter?
+
+      Some things cannot be expressed as annotations:
+        - which file answers a bare "/" request        (welcome-file)
+        - which JSP renders a container error page    (error-page)
+        - session timeout and cookie flags            (session-config)
+      So annotations handle the servlets/filters, and this file handles deployment
+      configuration. Using both is normal, not contradictory.
+    -->
+
+    <!--
+      WHY this is explicit: Tomcat's default welcome list already includes
+      index.jsp, so listing it here documents the behaviour rather than changing it.
+    -->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+    <!--
+      Container-generated error pages. A 403 from AuthFilter or a 500 from any
+      servlet lands on error.jsp instead of Tomcat's default HTML, which would not
+      match the site's styling.
+      These MUST be declared here and not with @WebServlet, because they are
+      matched by status code / exception type, not by URL.
+    -->
+    <error-page>
+        <error-code>403</error-code>
+        <location>/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error.jsp</location>
+    </error-page>
+    <!-- Catches anything not covered by a specific code above. -->
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/error.jsp</location>
+    </error-page>
+
+    <!--
+      30 minutes of inactivity ends the session. Tomcat's default is 24 hours,
+      which is far too long for a site used in a hurry and then abandoned, and it
+      would leave idle sessions holding server memory.
+    -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+        <cookie-config>
+            <!-- httpOnly: JavaScript cannot read the session cookie, which blunts
+                 the most common session-theft technique (XSS). -->
+            <http-only>true</http-only>
+            <!-- SameSite=Lax: the cookie is not attached to cross-site POSTs, which
+                 closes most CSRF holes without writing any token code. -->
+            <same-site>Lax</same-site>
+        </cookie-config>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
+
+    <!--
+      DELIBERATELY NO <security-constraint> ON *.jsp HERE.
+
+      It is tempting to add one to "hide the JSP source", but a url-pattern of
+      *.jsp with an <auth-constraint> applies to EVERY JSP in the application -
+      including index.jsp, login.jsp and error.jsp - so the whole site would
+      return 403. Hiding source is already handled for free: anything inside
+      /WEB-INF (which is where header.jspf and footer.jspf live) is unreachable
+      from a URL by the servlet specification, no configuration required.
+    -->
+
+    <!-- So the browser accepts our favicon and logo without guessing the type. -->
+    <mime-mapping>
+        <extension>svg</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+
+</web-app>

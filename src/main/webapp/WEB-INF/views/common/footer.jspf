@@ -1,0 +1,29 @@
+<%--
+    Shared closing markup for every page. Pairs with header.jspf.
+--%>
+</main>
+
+<footer class="border-top bg-white py-4 mt-auto">
+    <div class="container">
+        <div class="row gy-2 align-items-center">
+            <div class="col-md-8">
+                <p class="small text-secondary mb-1">
+                    <strong>BloodConnect</strong> &mdash; Emergency Blood &amp; Donor Coordination System.
+                </p>
+                <p class="small text-secondary mb-0">
+                    University web application project. Built with Java 17, Jakarta Servlets 6.0, JSP + JSTL
+                    and plain JDBC on MySQL 8.
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p class="small text-secondary mb-0">
+                    <a href="${pageContext.request.contextPath}/index.jsp#compatibility">Blood group compatibility</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"
+     role="img" aria-label="BloodConnect">
+    <!-- A blood drop containing a white cross: blood + medical care. -->
+    <path fill="#dc2626"
+          d="M32 4c-1.6 0-3 .8-3.9 2.1C24 13 16 24 16 34.5 16 45 23.4 53 32 53s16-8 16-18.5C48 24 40 13 35.9 6.1A4.6 4.6 0 0 0 32 4z"/>
+    <path fill="#ffffff" d="M28.4 21h7.2v8.4H44v7.2h-8.4V45h-7.2v-8.4H20v-7.2h8.4z"/>
+</svg>

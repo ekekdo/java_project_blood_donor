@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.bloodconnect</groupId>
+  <artifactId>blood-connect</artifactId>
+  <version>1.0.0</version>
+  <!-- WAR (not JAR) because we have JSPs + Servlets; Tomcat deploys/explodes it. -->
+  <packaging>war</packaging>
+
+  <name>Emergency Blood &amp; Donor Coordination System</name>
+
+  <properties>
+    <!-- 'release' (not source/target) makes javac compile against the real Java 17 API
+         surface, so a newer JDK on your machine cannot sneak in Java 18+ methods. -->
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
+    <jakarta.jstl.version>3.0.1</jakarta.jstl.version>
+    <jakarta.jstl.api.version>3.0.0</jakarta.jstl.api.version>
+    <mysql.connector.version>8.4.0</mysql.connector.version>
+    <jbcrypt.version>0.4</jbcrypt.version>
+
+    <!-- Tomcat 10.1.x, the first release line with full Jakarta EE 10 / Servlet 6.0
+         support. This MUST be 10.1 and not 9.x: 9.x is the last javax.servlet line. -->
+    <tomcat.version>10.1.34</tomcat.version>
+    <cargo.version>1.10.19</cargo.version>
+    <cargo.port>8080</cargo.port>
+  </properties>
+
+  <dependencies>
+    <!-- provided: Tomcat 10.1 already ships the Servlet/JSP API. Bundling it would
+         cause classloader conflicts and is the classic Jakarta migration mistake. -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--
+      JSTL needs TWO artifacts on Tomcat 10, and using only one of them is a very
+      common source of a blank page:
+
+        1. jakarta.servlet.jsp.jstl-api  - contains the actual TAG CLASSES in the
+           jakarta.servlet.jsp.jstl.core / .fmt / .functions packages. Without it
+           Tomcat throws NoClassDefFoundError:
+             jakarta/servlet/jsp/jstl/core/ConditionalTagSupport
+           the first time a page uses <c:if>. That is the class behind c:if, c:choose,
+           c:forEach, c:set and c:out.
+
+        2. org.glassfish.web:jakarta.servlet.jsp.jstl - contains the META-INF/*.tld
+           tag-library descriptors that map the tag names to those classes, plus the
+           Glassfish implementation behind them.
+
+      Add the api jar and you get a 500 with a ClassNotFoundException; add the
+      Glassfish jar alone and you get the same error. Both are required.
+    -->
+    <dependency>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>${jakarta.jstl.api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>${jakarta.jstl.version}</version>
+    </dependency>
+
+    <!-- The only JDBC driver allowed here: we write plain JDBC, no ORM. -->
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <version>${mysql.connector.version}</version>
+    </dependency>
+
+    <!-- Passwords are never stored as plain text. BCrypt is salted + slow by design. -->
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>${jbcrypt.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>blood-connect</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.4.0</version>
+        <!--
+          NO packagingExcludes for WEB-INF/classes/db.properties.
+          DBUtil reads db.properties from the CLASSPATH (WEB-INF/classes), so
+          excluding it from the WAR shipped a webapp without it: the first form
+          submission died in DBUtil.<clinit> with "db.properties not found on
+          the classpath" and produced HTTP 500. The WAR must contain it.
+        -->
+      </plugin>
+
+      <!-- 'mvn cargo:run' downloads Tomcat 10.1 and runs the WAR in it, so you
+           need no separate Tomcat install.
+           NOTE the groupId is org.codehaus.cargo, NOT org.codehaus.mojo. The
+           mojo group hosts hundreds of other plugins but not this one, and the
+           resulting "No plugin found for prefix 'cargo'" error is a classic
+           time-waster. -->
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven3-plugin</artifactId>
+        <version>${cargo.version}</version>
+        <configuration>
+          <container>
+            <containerId>tomcat10x</containerId>
+            <zipUrlInstaller>
+              <!-- archive.apache.org holds every release forever; dlcdn.apache.org
+                   only keeps the current one, so a pinned version has to come from
+                   the archive or the build breaks the day it is superseded. -->
+              <url>https://archive.apache.org/dist/tomcat/tomcat-10/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
+            </zipUrlInstaller>
+          </container>
+          <configuration>
+            <properties>
+              <cargo.servlet.port>${cargo.port}</cargo.servlet.port>
+            </properties>
+          </configuration>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

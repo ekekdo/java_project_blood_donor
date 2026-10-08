@@ -1,0 +1,33 @@
+/* Only the handful of tweaks Bootstrap 5 does not cover. Keeping our own CSS
+   this small is deliberate: a university project should be readable end to end,
+   and 200 lines of custom CSS is 200 lines nobody reviews. */
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Give the form a clear outline without the heavy default box-shadow. */
+.card-form {
+    border-radius: 0.75rem;
+}
+
+/* Bootstrap has no "required field" style, so we add one. */
+.label-required::after {
+    content: " *";
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* Readable width for a centred auth form. */
+.form-width {
+    max-width: 30rem;
+}
+
+/* The donor/hospital field blocks are toggled with JS on register.jsp. */
+.role-only-section {
+    display: none;
+}
+
+.role-only-section.is-visible {
+    display: block;
+}

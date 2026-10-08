@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# SECRETS - the most important entry in this file.
+#
+# db.properties holds a real MySQL username and password. Committing it would
+# publish a live credential in the repository history, and it stays there even
+# after you delete the file. That is why it is ignored, and why a
+# db.properties.example IS committed instead.
+# ---------------------------------------------------------------------------
+db.properties
+
+# ---------------------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------------------
+target/
+build/
+out/
+*.war
+*.class
+
+# ---------------------------------------------------------------------------
+# IDE files - each developer uses a different one
+# ---------------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+nbproject/
+
+# ---------------------------------------------------------------------------
+# OS noise
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------------------------------------
+# Logs and local server data
+# ---------------------------------------------------------------------------
+*.log
+logs/
+tomcat/
+work/
+temp/

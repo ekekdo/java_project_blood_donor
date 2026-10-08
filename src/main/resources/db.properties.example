@@ -1,0 +1,20 @@
+# ---------------------------------------------------------------------------
+# Copy this file to "db.properties" (same folder) and edit the values.
+#   Windows : copy db.properties.example db.properties
+#   Linux   : cp db.properties.example db.properties
+#
+# db.properties is in .gitignore because it holds a real database password.
+# ---------------------------------------------------------------------------
+
+# Full JDBC URL. createDatabaseIfNotExist=true lets MySQL create the database,
+# but it still requires CREATE permission, so run db/schema.sql first.
+db.url=jdbc:mysql://localhost:3306/blood_coordination?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
+
+db.username=root
+db.password=root
+db.driver=com.mysql.cj.jdbc.Driver
+
+# JDBC connection pool sizes. Small on purpose: this is a college project, not
+# a production deployment, and a big pool just hides connection-leak bugs.
+db.pool.maxActive=10
+db.pool.maxIdle=5
