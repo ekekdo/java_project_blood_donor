@@ -20,10 +20,12 @@ public class PatientUser extends User {
     /** Emergency contact, useful if the patient is unconscious when donating. */
     private String emergencyContact;
 
+    /** Creates an empty patient with the PATIENT role. */
     public PatientUser() {
         setRole(Role.PATIENT);
     }
 
+    /** Creates a fully populated patient with the PATIENT role. */
     public PatientUser(String name, String email, String phone, String city, String emergencyContact) {
         super(name, email, phone, Role.PATIENT);
         this.city = city;
@@ -36,30 +38,37 @@ public class PatientUser extends User {
         return "/patient/dashboard";
     }
 
+    /** Returns the owning users.id. */
     public Long getUserId() {
         return userId;
     }
 
+    /** Sets the owning users.id. */
     public void setUserId(Long userId) {
         this.userId = userId;
     }
 
+    /** Returns the city. */
     public String getCity() {
         return city;
     }
 
+    /** Sets the city. */
     public void setCity(String city) {
         this.city = city;
     }
 
+    /** Returns the emergency contact. */
     public String getEmergencyContact() {
         return emergencyContact;
     }
 
+    /** Sets the emergency contact. */
     public void setEmergencyContact(String emergencyContact) {
         this.emergencyContact = emergencyContact;
     }
 
+    /** Returns a printable summary without the password hash. */
     @Override
     public String toString() {
         return "PatientUser{userId=" + userId + ", city='" + city + "'}";

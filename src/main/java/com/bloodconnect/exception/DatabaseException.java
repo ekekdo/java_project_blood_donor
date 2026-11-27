@@ -12,10 +12,12 @@ public class DatabaseException extends BloodAppException {
 
     private static final long serialVersionUID = 1L;
 
+    /** Creates a database failure with a message and underlying cause. */
     public DatabaseException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /** Creates a database failure with the given message. */
     public DatabaseException(String message) {
         super(message);
     }

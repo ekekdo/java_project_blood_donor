@@ -33,6 +33,7 @@ public class LoginServlet extends HttpServlet {
 
     private final AuthService authService = AuthService.createDefault();
 
+    /** Sends a signed-in user straight to their dashboard, otherwise to the form. */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -59,6 +60,7 @@ public class LoginServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
     }
 
+    /** Verifies credentials, establishes the session, and redirects. */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

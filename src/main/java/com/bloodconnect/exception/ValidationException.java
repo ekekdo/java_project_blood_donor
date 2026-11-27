@@ -14,11 +14,13 @@ public class ValidationException extends BloodAppException {
     /** Which form field the message belongs to, e.g. "email" or "password". */
     private final String field;
 
+    /** Creates a validation failure tied to the given form field. */
     public ValidationException(String field, String message) {
         super(message);
         this.field = field;
     }
 
+    /** Returns the form field the message belongs to. */
     public String getField() {
         return field;
     }

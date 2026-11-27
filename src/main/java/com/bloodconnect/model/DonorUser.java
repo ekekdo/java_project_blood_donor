@@ -31,15 +31,17 @@ public class DonorUser extends User {
     private boolean available;
 
     /**
-     * Business rule: a donor is eligible only if lastDonationDate is null or older
-     * than 90 days. Stored as DATE, so it can be compared in SQL later.
+     * Business rule: a donor is eligible only if lastDonationDate is null or at
+     * least 90 days ago. Stored as DATE, so it can be compared in SQL later.
      */
     private LocalDate lastDonationDate;
 
+    /** Creates an empty donor with the DONOR role. */
     public DonorUser() {
         setRole(Role.DONOR);
     }
 
+    /** Creates a fully populated donor with the DONOR role. */
     public DonorUser(String name, String email, String phone, Integer age, String gender,
                      BloodGroup bloodGroup, String city, String address) {
         super(name, email, phone, Role.DONOR);
@@ -79,7 +81,7 @@ public class DonorUser extends User {
         if (lastDonationDate == null) {
             return true;
         }
-        return lastDonationDate.plusDays(DONATION_COOLDOWN_DAYS).isBefore(today);
+        return !lastDonationDate.plusDays(DONATION_COOLDOWN_DAYS).isAfter(today);
     }
 
     /** Convenience overload for callers in a request thread. */
@@ -89,70 +91,87 @@ public class DonorUser extends User {
 
     // ---- Getters/setters ----
 
+    /** Returns the owning users.id. */
     public Long getUserId() {
         return userId;
     }
 
+    /** Sets the owning users.id. */
     public void setUserId(Long userId) {
         this.userId = userId;
     }
 
+    /** Returns the donor's age. */
     public Integer getAge() {
         return age;
     }
 
+    /** Sets the donor's age. */
     public void setAge(Integer age) {
         this.age = age;
     }
 
+    /** Returns the donor's gender. */
     public String getGender() {
         return gender;
     }
 
+    /** Sets the donor's gender. */
     public void setGender(String gender) {
         this.gender = gender;
     }
 
+    /** Returns the blood group. */
     public BloodGroup getBloodGroup() {
         return bloodGroup;
     }
 
+    /** Sets the blood group. */
     public void setBloodGroup(BloodGroup bloodGroup) {
         this.bloodGroup = bloodGroup;
     }
 
+    /** Returns the city. */
     public String getCity() {
         return city;
     }
 
+    /** Sets the city. */
     public void setCity(String city) {
         this.city = city;
     }
 
+    /** Returns the address. */
     public String getAddress() {
         return address;
     }
 
+    /** Sets the address. */
     public void setAddress(String address) {
         this.address = address;
     }
 
+    /** Returns whether the donor is available to donate. */
     public boolean isAvailable() {
         return available;
     }
 
+    /** Sets whether the donor is available to donate. */
     public void setAvailable(boolean available) {
         this.available = available;
     }
 
+    /** Returns the last donation date. */
     public LocalDate getLastDonationDate() {
         return lastDonationDate;
     }
 
+    /** Sets the last donation date. */
     public void setLastDonationDate(LocalDate lastDonationDate) {
         this.lastDonationDate = lastDonationDate;
     }
 
+    /** Returns a printable summary without the password hash. */
     @Override
     public String toString() {
         return "DonorUser{userId=" + userId + ", bloodGroup=" + bloodGroup

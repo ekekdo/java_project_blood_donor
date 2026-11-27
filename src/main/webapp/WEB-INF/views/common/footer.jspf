@@ -18,6 +18,8 @@
             <div class="col-md-4 text-md-end">
                 <p class="small text-secondary mb-0">
                     <a href="${pageContext.request.contextPath}/index.jsp#compatibility">Blood group compatibility</a>
+                    &middot;
+                    <a href="${pageContext.request.contextPath}/eligibility">Donor eligibility checker</a>
                 </p>
             </div>
         </div>

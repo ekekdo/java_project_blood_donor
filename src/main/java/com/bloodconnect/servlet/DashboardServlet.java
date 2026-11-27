@@ -66,6 +66,7 @@ public class DashboardServlet extends HttpServlet {
     private final DonorDao donorDao = new com.bloodconnect.dao.impl.DonorDaoImpl();
     private final HospitalDao hospitalDao = new com.bloodconnect.dao.impl.HospitalDaoImpl();
 
+    /** Loads the signed-in user and record counts, then forwards to the role's JSP. */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -220,15 +221,18 @@ public class DashboardServlet extends HttpServlet {
         private final String title;
         private final String description;
 
+        /** Creates one dashboard bullet point. */
         public Task(String title, String description) {
             this.title = title;
             this.description = description;
         }
 
+        /** Returns the bullet-point title. */
         public String getTitle() {
             return title;
         }
 
+        /** Returns the bullet-point description. */
         public String getDescription() {
             return description;
         }

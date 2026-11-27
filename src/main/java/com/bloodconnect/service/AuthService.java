@@ -1,8 +1,9 @@
 package com.bloodconnect.service;
 
-import com.bloodconnect.dao.DonorDao;
 import com.bloodconnect.dao.HospitalDao;
+import com.bloodconnect.dao.RegistrationDao;
 import com.bloodconnect.dao.UserDao;
+import com.bloodconnect.dao.impl.JdbcRegistrationDao;
 import com.bloodconnect.enums.AccountStatus;
 import com.bloodconnect.enums.BloodGroup;
 import com.bloodconnect.enums.Role;
@@ -51,27 +52,27 @@ public class AuthService {
     private static final int BCRYPT_MAX_BYTES = 72;
 
     private final UserDao userDao;
-    private final DonorDao donorDao;
     private final HospitalDao hospitalDao;
+    private final RegistrationDao registrationDao;
 
     /**
      * Constructor injection instead of `new UserDaoImpl()` inside the methods.
-     * WHY: the class becomes testable - a unit test can pass a fake DAO and assert
+     * WHY: the class becomes testable - a unit test can pass fake DAOs and assert
      * that register() rejects a bad email, with no database at all. Hard-coding
      * `new` inside a method would make that impossible.
      */
-    public AuthService(UserDao userDao, DonorDao donorDao, HospitalDao hospitalDao) {
+    public AuthService(UserDao userDao, HospitalDao hospitalDao, RegistrationDao registrationDao) {
         this.userDao = userDao;
-        this.donorDao = donorDao;
         this.hospitalDao = hospitalDao;
+        this.registrationDao = registrationDao;
     }
 
     /** Convenience factory for the servlets, which have no DI framework available. */
     public static AuthService createDefault() {
         return new AuthService(
                 new com.bloodconnect.dao.impl.UserDaoImpl(),
-                new com.bloodconnect.dao.impl.DonorDaoImpl(),
-                new com.bloodconnect.dao.impl.HospitalDaoImpl());
+                new com.bloodconnect.dao.impl.HospitalDaoImpl(),
+                new JdbcRegistrationDao());
     }
 
     // ================= REGISTRATION =================
@@ -137,6 +138,11 @@ public class AuthService {
             patient.setEmergencyContact(form.getEmergencyContact());
         }
 
+        if (hospital != null && hospitalDao.registrationNoExists(hospital.getRegistrationNo())) {
+            throw new ValidationException("registrationNo",
+                    "That hospital registration number is already on file");
+        }
+
         // ---------- STEP 3: check for a duplicate email ----------
         // Done before the INSERT so the common case gets a clean message. The
         // UNIQUE index on users.email remains the real guarantee, and
@@ -162,32 +168,9 @@ public class AuthService {
         // reflects that an approval is outstanding.
         user.setStatus(role == Role.HOSPITAL ? AccountStatus.PENDING : AccountStatus.ACTIVE);
 
-        Long userId = userDao.create(user);
+        // ---------- STEP 6: insert the user and profile in one transaction ----------
+        Long userId = registrationDao.register(user, donor, hospital, patient);
         user.setId(userId);
-
-        // ---------- STEP 6: insert the role profile row ----------
-        // WHY the profile insert is NOT inside the same JDBC transaction as step 5:
-        // it should be. This is a known limitation of phase 1 and is called out in
-        // the README, because UserDao and DonorDao each open their own connection
-        // through DBUtil. The fix is a DAO method that accepts an external
-        // Connection, which is exactly how the phase-3 request-fulfilment
-        // transaction will be written. Being honest about it in the viva is worth
-        // more than hiding it.
-        if (donor != null) {
-            donor.setUserId(userId);
-            Long donorId = donorDao.create(donor);
-            donor.setId(donorId);
-        } else if (hospital != null) {
-            // Guard the UNIQUE index on registration_no with a friendly message.
-            if (hospitalDao.registrationNoExists(hospital.getRegistrationNo())) {
-                throw new ValidationException("registrationNo",
-                        "That hospital registration number is already on file");
-            }
-            hospital.setUserId(userId);
-            Long hospitalId = hospitalDao.create(hospital);
-            hospital.setId(hospitalId);
-        }
-
         return user;
     }
 
@@ -403,7 +386,7 @@ public class AuthService {
         donor.setCity(requireText(form.getCity(), "city", "City is required for a donor account"));
         donor.setAddress(form.getAddress());
         donor.setAvailable(true);
-        // lastDonationDate stays null: a brand-new donor has donated before and is
+        // lastDonationDate stays null: a brand-new donor has not donated before and is
         // immediately eligible. See DonorUser.isEligibleToDonate().
         return donor;
     }
@@ -464,49 +447,79 @@ public class AuthService {
         // patient-only
         private String emergencyContact;
 
+        /** Returns the full name. */
         public String getName() { return name; }
+        /** Sets the full name. */
         public void setName(String name) { this.name = name; }
 
+        /** Returns the email address. */
         public String getEmail() { return email; }
+        /** Sets the email address. */
         public void setEmail(String email) { this.email = email; }
 
+        /** Returns the phone number. */
         public String getPhone() { return phone; }
+        /** Sets the phone number. */
         public void setPhone(String phone) { this.phone = phone; }
 
+        /** Returns the plain password. */
         public String getPassword() { return password; }
+        /** Sets the plain password. */
         public void setPassword(String password) { this.password = password; }
 
+        /** Returns the chosen role. */
         public Role getRole() { return role; }
+        /** Sets the chosen role. */
         public void setRole(Role role) { this.role = role; }
 
+        /** Returns the donor's age. */
         public Integer getAge() { return age; }
+        /** Sets the donor's age. */
         public void setAge(Integer age) { this.age = age; }
 
+        /** Returns the donor's gender. */
         public String getGender() { return gender; }
+        /** Sets the donor's gender. */
         public void setGender(String gender) { this.gender = gender; }
 
+        /** Returns the blood group text. */
         public String getBloodGroup() { return bloodGroup; }
+        /** Sets the blood group text. */
         public void setBloodGroup(String bloodGroup) { this.bloodGroup = bloodGroup; }
 
+        /** Returns the city. */
         public String getCity() { return city; }
+        /** Sets the city. */
         public void setCity(String city) { this.city = city; }
 
+        /** Returns the address. */
         public String getAddress() { return address; }
+        /** Sets the address. */
         public void setAddress(String address) { this.address = address; }
 
+        /** Returns the hospital name. */
         public String getHospitalName() { return hospitalName; }
+        /** Sets the hospital name. */
         public void setHospitalName(String hospitalName) { this.hospitalName = hospitalName; }
 
+        /** Returns the hospital registration number. */
         public String getRegistrationNo() { return registrationNo; }
+        /** Sets the hospital registration number. */
         public void setRegistrationNo(String registrationNo) { this.registrationNo = registrationNo; }
 
+        /** Returns the hospital contact number. */
         public String getHospitalPhone() { return hospitalPhone; }
+        /** Sets the hospital contact number. */
         public void setHospitalPhone(String hospitalPhone) { this.hospitalPhone = hospitalPhone; }
 
+        /** Returns the authorised staff member. */
         public String getAuthorizedPerson() { return authorizedPerson; }
+        /** Sets the authorised staff member. */
         public void setAuthorizedPerson(String authorizedPerson) { this.authorizedPerson = authorizedPerson; }
 
+        /** Returns the patient's emergency contact. */
         public String getEmergencyContact() { return emergencyContact; }
+        /** Sets the patient's emergency contact. */
         public void setEmergencyContact(String emergencyContact) { this.emergencyContact = emergencyContact; }
     }
 }

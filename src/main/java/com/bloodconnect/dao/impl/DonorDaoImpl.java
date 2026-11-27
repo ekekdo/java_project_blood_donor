@@ -25,26 +25,42 @@ import java.util.List;
  */
 public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
 
-    private static final String INSERT_SQL =
-            "INSERT INTO donors (user_id, age, gender, blood_group, city, address, available, last_donation_date) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_SQL = """
+            INSERT INTO donors (user_id, age, gender, blood_group, city, address, available, last_donation_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """;
 
-    private static final String SELECT_COLUMNS =
-            "SELECT id, user_id, age, gender, blood_group, city, address, available, last_donation_date "
-                    + "FROM donors";
+    private static final String SELECT_BY_ID_SQL = """
+            SELECT id, user_id, age, gender, blood_group, city, address, available, last_donation_date
+            FROM donors
+            WHERE id = ?
+            """;
 
-    private static final String SELECT_BY_ID_SQL = SELECT_COLUMNS + " WHERE id = ?";
+    private static final String SELECT_BY_USER_SQL = """
+            SELECT id, user_id, age, gender, blood_group, city, address, available, last_donation_date
+            FROM donors
+            WHERE user_id = ?
+            """;
 
-    private static final String SELECT_BY_USER_SQL = SELECT_COLUMNS + " WHERE user_id = ?";
+    private static final String SELECT_ALL_SQL = """
+            SELECT id, user_id, age, gender, blood_group, city, address, available, last_donation_date
+            FROM donors
+            ORDER BY id
+            """;
 
-    private static final String SELECT_ALL_SQL = SELECT_COLUMNS + " ORDER BY id";
+    private static final String SELECT_BY_GROUP_SQL = """
+            SELECT id, user_id, age, gender, blood_group, city, address, available, last_donation_date
+            FROM donors
+            WHERE blood_group = ?
+            ORDER BY city, id
+            """;
 
-    private static final String SELECT_BY_GROUP_SQL =
-            SELECT_COLUMNS + " WHERE blood_group = ? ORDER BY city, id";
-
-    private static final String UPDATE_SQL =
-            "UPDATE donors SET age = ?, gender = ?, blood_group = ?, city = ?, address = ?, "
-                    + "available = ?, last_donation_date = ? WHERE id = ?";
+    private static final String UPDATE_SQL = """
+            UPDATE donors
+            SET age = ?, gender = ?, blood_group = ?, city = ?, address = ?,
+                available = ?, last_donation_date = ?
+            WHERE id = ?
+            """;
 
     private static final String DELETE_SQL = "DELETE FROM donors WHERE id = ?";
 
@@ -60,12 +76,16 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
      * Note the two placeholders: the caller's group goes in as a ? and the CRITERIA
      * are all parameters. No value is concatenated into the SQL text.
      */
-    private static final String ELIGIBLE_SQL =
-            SELECT_COLUMNS + " WHERE blood_group = ? AND city = ? AND available = TRUE "
-                    + "AND (last_donation_date IS NULL "
-                    + "     OR last_donation_date < DATE_SUB(CURRENT_DATE, INTERVAL 90 DAY)) "
-                    + "ORDER BY last_donation_date IS NOT NULL, last_donation_date";
+    private static final String ELIGIBLE_SQL = """
+            SELECT id, user_id, age, gender, blood_group, city, address, available, last_donation_date
+            FROM donors
+            WHERE blood_group = ? AND city = ? AND available = TRUE
+              AND (last_donation_date IS NULL
+                   OR last_donation_date <= DATE_SUB(CURRENT_DATE, INTERVAL 90 DAY))
+            ORDER BY last_donation_date IS NOT NULL, last_donation_date
+            """;
 
+    /** Inserts a donor and returns its generated id. */
     @Override
     public Long create(DonorUser donor) throws DatabaseException {
         return withConnection(connection -> {
@@ -87,6 +107,7 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
         });
     }
 
+    /** Finds a donor by primary key, or an empty Optional. */
     @Override
     public java.util.Optional<DonorUser> findById(Long id) throws DatabaseException {
         if (id == null) {
@@ -102,6 +123,7 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
         });
     }
 
+    /** Returns all donors, ordered by id. */
     @Override
     public List<DonorUser> findAll() throws DatabaseException {
         return withConnection(connection -> {
@@ -116,6 +138,7 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
         });
     }
 
+    /** Updates an existing donor row and reports whether a row changed. */
     @Override
     public boolean update(DonorUser donor) throws DatabaseException {
         if (donor == null || donor.getId() == null) {
@@ -136,6 +159,7 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
         });
     }
 
+    /** Deletes the donor with the given id, if one exists. */
     @Override
     public boolean delete(Long id) throws DatabaseException {
         if (id == null) {
@@ -167,6 +191,7 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
         });
     }
 
+    /** Returns available donors of a group in a city who have passed the 90-day rest. */
     @Override
     public List<DonorUser> findEligibleDonors(BloodGroup bloodGroup, String city) throws DatabaseException {
         if (bloodGroup == null || city == null || city.isBlank()) {
@@ -187,6 +212,7 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
         });
     }
 
+    /** Returns all donors of a group, ignoring the 90-day rule. */
     @Override
     public List<DonorUser> findByBloodGroup(BloodGroup bloodGroup) throws DatabaseException {
         if (bloodGroup == null) {
@@ -206,6 +232,7 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
         });
     }
 
+    /** Toggles a donor's availability and reports whether a row changed. */
     @Override
     public boolean setAvailability(long donorId, boolean available) throws DatabaseException {
         return withConnection(connection -> {
@@ -239,6 +266,7 @@ public class DonorDaoImpl extends AbstractBaseDao implements DonorDao {
         });
     }
 
+    /** Returns the total donor count. */
     @Override
     public long countAll() throws DatabaseException {
         return withConnection(connection -> {

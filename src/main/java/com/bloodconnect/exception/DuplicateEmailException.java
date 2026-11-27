@@ -14,11 +14,13 @@ public class DuplicateEmailException extends BloodAppException {
 
     private final String email;
 
+    /** Creates a duplicate-email failure for the given address. */
     public DuplicateEmailException(String email) {
         super("An account already exists for email: " + email);
         this.email = email;
     }
 
+    /** Returns the email that was already registered. */
     public String getEmail() {
         return email;
     }

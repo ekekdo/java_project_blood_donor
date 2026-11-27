@@ -11,10 +11,12 @@ public class ResourceNotFoundException extends BloodAppException {
 
     private static final long serialVersionUID = 1L;
 
+    /** Creates a not-found failure with the given message. */
     public ResourceNotFoundException(String message) {
         super(message);
     }
 
+    /** Creates a not-found failure naming the resource and its id. */
     public static ResourceNotFoundException forId(String resource, Object id) {
         return new ResourceNotFoundException(resource + " not found with id " + id);
     }

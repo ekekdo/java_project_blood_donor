@@ -45,5 +45,6 @@ public interface DonorDao extends CrudDao<DonorUser, Long> {
      */
     boolean recordDonationDate(long donorId, java.time.LocalDate donationDate) throws DatabaseException;
 
+    /** Returns the total donor count. */
     long countAll() throws DatabaseException;
 }

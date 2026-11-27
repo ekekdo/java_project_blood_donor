@@ -23,6 +23,7 @@ public enum RequestStatus {
         this.displayName = displayName;
     }
 
+    /** Returns the human-readable status label. */
     public String getDisplayName() {
         return displayName;
     }
@@ -32,6 +33,7 @@ public enum RequestStatus {
         return this == OPEN || this == PARTIALLY_FULFILLED;
     }
 
+    /** Parses a name, ignoring case and surrounding whitespace. */
     public static RequestStatus fromString(String value) {
         if (value != null) {
             for (RequestStatus status : values()) {

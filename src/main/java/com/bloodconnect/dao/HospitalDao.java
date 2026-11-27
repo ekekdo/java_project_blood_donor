@@ -10,6 +10,7 @@ import java.util.List;
  */
 public interface HospitalDao extends CrudDao<HospitalUser, Long> {
 
+    /** Returns the hospital profile for a login, or null when none exists. */
     HospitalUser findByUserId(long userId) throws DatabaseException;
 
     /**
@@ -20,10 +21,12 @@ public interface HospitalDao extends CrudDao<HospitalUser, Long> {
      */
     boolean registrationNoExists(String registrationNo) throws DatabaseException;
 
+    /** Returns all hospitals in the given city. */
     List<HospitalUser> findByCity(String city) throws DatabaseException;
 
     /** Admin action in a later phase; until then it proves the UPDATE path works. */
     boolean setVerified(long hospitalId, boolean verified) throws DatabaseException;
 
+    /** Returns the total hospital count. */
     long countAll() throws DatabaseException;
 }

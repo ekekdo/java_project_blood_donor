@@ -15,10 +15,12 @@ import com.bloodconnect.enums.Role;
  */
 public class AdminUser extends User {
 
+    /** Creates an empty administrator with the ADMIN role. */
     public AdminUser() {
         setRole(Role.ADMIN);
     }
 
+    /** Creates an administrator with the ADMIN role. */
     public AdminUser(String name, String email, String phone) {
         super(name, email, phone, Role.ADMIN);
     }

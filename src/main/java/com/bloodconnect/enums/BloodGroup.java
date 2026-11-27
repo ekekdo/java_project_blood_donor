@@ -25,6 +25,7 @@ public enum BloodGroup {
         this.label = label;
     }
 
+    /** Returns the short label shown in the UI, e.g. "O+". */
     public String getLabel() {
         return label;
     }

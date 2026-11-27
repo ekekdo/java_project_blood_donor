@@ -60,6 +60,7 @@ public class RegisterServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/register.jsp");
     }
 
+    /** Validates the submitted form, registers the account, and redirects. */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

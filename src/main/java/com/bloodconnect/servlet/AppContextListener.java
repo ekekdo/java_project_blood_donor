@@ -41,6 +41,7 @@ public class AppContextListener implements ServletContextListener {
     /** Request attribute name holding the compatibility table for the reference page. */
     public static final String ATTR_COMPATIBILITY = "bloodCompatibility";
 
+    /** Publishes the reference data in application scope when the app starts. */
     @Override
     public void contextInitialized(ServletContextEvent event) {
 
@@ -59,6 +60,7 @@ public class AppContextListener implements ServletContextListener {
                 + " compatibility rules to application scope.");
     }
 
+    /** Logs a clean shutdown so a redeploy can be told apart from a crash. */
     @Override
     public void contextDestroyed(ServletContextEvent event) {
         // WHY anything at all: Tomcat hot-redeploys without a clean JVM shutdown, so

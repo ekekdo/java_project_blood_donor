@@ -23,6 +23,7 @@ public final class UserFactory {
         throw new AssertionError("UserFactory is a utility class and must not be instantiated");
     }
 
+    /** Creates the User subclass matching the given role. */
     public static User create(Role role) {
         if (role == null) {
             throw new IllegalArgumentException("Cannot create a user without a role");

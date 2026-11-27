@@ -22,6 +22,7 @@ public enum AccountStatus {
         this.displayName = displayName;
     }
 
+    /** Returns the human-readable status label. */
     public String getDisplayName() {
         return displayName;
     }
@@ -31,6 +32,7 @@ public enum AccountStatus {
         return this == ACTIVE;
     }
 
+    /** Parses a name, ignoring case and surrounding whitespace. */
     public static AccountStatus fromString(String value) {
         if (value != null) {
             for (AccountStatus status : values()) {

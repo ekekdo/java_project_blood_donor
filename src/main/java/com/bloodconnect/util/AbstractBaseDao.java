@@ -11,6 +11,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Shared JDBC plumbing for the concrete DAOs.
@@ -25,6 +27,8 @@ import java.time.LocalDateTime;
  * inside a lambda. There is nothing here for a subclass to override.
  */
 public abstract class AbstractBaseDao {
+
+    private static final Logger LOGGER = Logger.getLogger(AbstractBaseDao.class.getName());
 
     /**
      * Protected, not private: an implicit super() call from every subclass
@@ -55,6 +59,7 @@ public abstract class AbstractBaseDao {
      */
     @FunctionalInterface
     protected interface SqlWork<T> {
+        /** Runs the unit of work using the supplied connection. */
         T execute(Connection connection) throws SQLException;
     }
 
@@ -176,18 +181,18 @@ public abstract class AbstractBaseDao {
     }
 
     /**
-     * Closes a statement quietly during cleanup.
+     * Closes a statement during cleanup and logs any failure.
      *
-     * WHY catch and ignore: a close() failure on an already-broken connection is
-     * not interesting, and letting it propagate would mask the REAL error we are
-     * already in the middle of reporting.
+     * WHY log instead of silently ignore: a close() failure on an already-broken
+     * connection must not mask the original error, but it must still leave a
+     * diagnostic trace for the developer.
      */
     protected static void closeQuietly(AutoCloseable closeable) {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (Exception ignored) {
-                // Intentionally ignored - see the comment above.
+            } catch (Exception closeFailure) {
+                LOGGER.log(Level.WARNING, "Could not close JDBC resource", closeFailure);
             }
         }
     }

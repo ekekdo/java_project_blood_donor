@@ -65,6 +65,7 @@ public class AuthFilter implements Filter {
         return Collections.unmodifiableMap(index);
     }
 
+    /** Allows the request through only when the session role matches the URL area. */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {

@@ -5,7 +5,8 @@ import com.bloodconnect.enums.AccountStatus;
 import com.bloodconnect.enums.Role;
 import com.bloodconnect.exception.DatabaseException;
 import com.bloodconnect.exception.DuplicateEmailException;
-import com.bloodconnect.model.User;import com.bloodconnect.model.UserFactory;
+import com.bloodconnect.model.User;
+import com.bloodconnect.model.UserFactory;
 import com.bloodconnect.util.AbstractBaseDao;
 
 import java.sql.Connection;
@@ -30,22 +31,27 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
      * No user-supplied value is ever appended to these strings. Columns and table
      * names are fixed at compile time; only values travel as ? placeholders.
      */
-    private static final String INSERT_SQL =
-            "INSERT INTO users (name, email, phone, password_hash, role, status) "
-                    + "VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_SQL = """
+            INSERT INTO users (name, email, phone, password_hash, role, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
 
-    private static final String SELECT_COLUMNS =
-            "SELECT id, name, email, phone, password_hash, role, status, created_at FROM users";
+    private static final String SELECT_BY_ID_SQL =
+            "SELECT id, name, email, phone, password_hash, role, status, created_at FROM users WHERE id = ?";
 
-    private static final String SELECT_BY_ID_SQL = SELECT_COLUMNS + " WHERE id = ?";
+    private static final String SELECT_BY_EMAIL_SQL =
+            "SELECT id, name, email, phone, password_hash, role, status, created_at FROM users WHERE email = ?";
 
-    private static final String SELECT_BY_EMAIL_SQL = SELECT_COLUMNS + " WHERE email = ?";
+    private static final String SELECT_ALL_SQL = """
+            SELECT id, name, email, phone, password_hash, role, status, created_at FROM users
+            ORDER BY created_at DESC, id DESC
+            """;
 
-    private static final String SELECT_ALL_SQL = SELECT_COLUMNS + " ORDER BY created_at DESC, id DESC";
-
-    private static final String UPDATE_SQL =
-            "UPDATE users SET name = ?, email = ?, phone = ?, password_hash = ?, role = ?, status = ? "
-                    + "WHERE id = ?";
+    private static final String UPDATE_SQL = """
+            UPDATE users
+            SET name = ?, email = ?, phone = ?, password_hash = ?, role = ?, status = ?
+            WHERE id = ?
+            """;
 
     private static final String DELETE_SQL = "DELETE FROM users WHERE id = ?";
 
@@ -85,6 +91,7 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
         }
     }
 
+    /** Finds a user by primary key, or an empty Optional. */
     @Override
     public Optional<User> findById(Long id) throws DatabaseException {
         if (id == null) {
@@ -100,6 +107,7 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
         });
     }
 
+    /** Finds a user by email, or an empty Optional. */
     @Override
     public Optional<User> findByEmail(String email) throws DatabaseException {
         if (email == null || email.isBlank()) {
@@ -115,6 +123,7 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
         });
     }
 
+    /** Returns all users, newest first. */
     @Override
     public List<User> findAll() throws DatabaseException {
         return withConnection(connection -> {
@@ -129,6 +138,7 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
         });
     }
 
+    /** Updates an existing user row and reports whether a row changed. */
     @Override
     public boolean update(User user) throws DatabaseException, DuplicateEmailException {
         if (user == null || user.getId() == null) {
@@ -158,6 +168,7 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
         }
     }
 
+    /** Deletes the user with the given id, if one exists. */
     @Override
     public boolean delete(Long id) throws DatabaseException {
         if (id == null) {
@@ -171,6 +182,7 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
         });
     }
 
+    /** Returns whether the email is already registered. */
     @Override
     public boolean emailExists(String email) throws DatabaseException {
         if (email == null || email.isBlank()) {
@@ -187,6 +199,7 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
         });
     }
 
+    /** Counts users currently holding the given status. */
     @Override
     public long countByStatus(AccountStatus status) throws DatabaseException {
         if (status == null) {
@@ -203,6 +216,7 @@ public class UserDaoImpl extends AbstractBaseDao implements UserDao {
         });
     }
 
+    /** Returns the total user count. */
     @Override
     public long countAll() throws DatabaseException {
         return withConnection(connection -> {

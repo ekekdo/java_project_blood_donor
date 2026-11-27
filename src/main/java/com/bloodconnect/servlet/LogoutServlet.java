@@ -23,12 +23,14 @@ public class LogoutServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
+    /** Logs out via a plain link. */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         handleLogout(request, response);
     }
 
+    /** Logs out via a form submission. */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

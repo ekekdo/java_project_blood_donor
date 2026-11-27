@@ -23,6 +23,8 @@
     <jakarta.jstl.api.version>3.0.0</jakarta.jstl.api.version>
     <mysql.connector.version>8.4.0</mysql.connector.version>
     <jbcrypt.version>0.4</jbcrypt.version>
+    <junit.version>5.11.4</junit.version>
+    <surefire.version>3.5.2</surefire.version>
 
     <!-- Tomcat 10.1.x, the first release line with full Jakarta EE 10 / Servlet 6.0
          support. This MUST be 10.1 and not 9.x: 9.x is the last javax.servlet line. -->
@@ -83,6 +85,14 @@
       <artifactId>jbcrypt</artifactId>
       <version>${jbcrypt.version}</version>
     </dependency>
+
+    <!-- JUnit 5 is test-scoped: no test code or JUnit classes enter the WAR. -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -92,6 +102,12 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
       </plugin>
 
       <plugin>

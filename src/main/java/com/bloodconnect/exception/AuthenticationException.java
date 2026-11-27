@@ -12,6 +12,7 @@ public class AuthenticationException extends BloodAppException {
 
     private static final long serialVersionUID = 1L;
 
+    /** Creates an authentication failure with the given message. */
     public AuthenticationException(String message) {
         super(message);
     }

@@ -101,6 +101,7 @@ public final class DBUtil {
      */
     @FunctionalInterface
     public interface RowMapper<T> {
+        /** Maps the current row of the result set to an entity. */
         T mapRow(ResultSet rs) throws SQLException;
     }
 

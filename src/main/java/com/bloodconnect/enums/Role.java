@@ -23,6 +23,7 @@ public enum Role {
         this.displayName = displayName;
     }
 
+    /** Returns the human-readable role label. */
     public String getDisplayName() {
         return displayName;
     }

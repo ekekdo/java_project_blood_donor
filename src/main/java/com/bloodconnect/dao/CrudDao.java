@@ -52,6 +52,7 @@ public interface CrudDao<T, ID> {
      */
     Optional<T> findById(ID id) throws DatabaseException;
 
+    /** Returns every row managed by this DAO. */
     List<T> findAll() throws DatabaseException;
 
     /**

@@ -29,10 +29,12 @@ public enum ProtectedArea {
         this.requiredRole = requiredRole;
     }
 
+    /** Returns the first path segment guarded by this area. */
     public String getPathSegment() {
         return pathSegment;
     }
 
+    /** Returns the single role allowed into this area. */
     public Role getRequiredRole() {
         return requiredRole;
     }

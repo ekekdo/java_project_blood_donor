@@ -17,29 +17,51 @@ import java.util.List;
  */
 public class HospitalDaoImpl extends AbstractBaseDao implements HospitalDao {
 
-    private static final String INSERT_SQL =
-            "INSERT INTO hospitals (user_id, hospital_name, registration_no, address, city, "
-                    + "contact_number, authorized_person, verified) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_SQL = """
+            INSERT INTO hospitals (user_id, hospital_name, registration_no, address, city,
+                                   contact_number, authorized_person, verified)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """;
 
-    private static final String SELECT_COLUMNS =
-            "SELECT id, user_id, hospital_name, registration_no, address, city, "
-                    + "contact_number, authorized_person, verified FROM hospitals";
+    private static final String SELECT_BY_ID_SQL = """
+            SELECT id, user_id, hospital_name, registration_no, address, city,
+                   contact_number, authorized_person, verified
+            FROM hospitals
+            WHERE id = ?
+            """;
 
-    private static final String SELECT_BY_ID_SQL = SELECT_COLUMNS + " WHERE id = ?";
+    private static final String SELECT_BY_USER_SQL = """
+            SELECT id, user_id, hospital_name, registration_no, address, city,
+                   contact_number, authorized_person, verified
+            FROM hospitals
+            WHERE user_id = ?
+            """;
 
-    private static final String SELECT_BY_USER_SQL = SELECT_COLUMNS + " WHERE user_id = ?";
+    private static final String SELECT_BY_CITY_SQL = """
+            SELECT id, user_id, hospital_name, registration_no, address, city,
+                   contact_number, authorized_person, verified
+            FROM hospitals
+            WHERE city = ?
+            ORDER BY hospital_name
+            """;
 
-    private static final String SELECT_BY_CITY_SQL = SELECT_COLUMNS + " WHERE city = ? ORDER BY hospital_name";
+    private static final String SELECT_ALL_SQL = """
+            SELECT id, user_id, hospital_name, registration_no, address, city,
+                   contact_number, authorized_person, verified
+            FROM hospitals
+            ORDER BY city, hospital_name
+            """;
 
-    private static final String SELECT_ALL_SQL = SELECT_COLUMNS + " ORDER BY city, hospital_name";
-
-    private static final String UPDATE_SQL =
-            "UPDATE hospitals SET hospital_name = ?, registration_no = ?, address = ?, city = ?, "
-                    + "contact_number = ?, authorized_person = ?, verified = ? WHERE id = ?";
+    private static final String UPDATE_SQL = """
+            UPDATE hospitals
+            SET hospital_name = ?, registration_no = ?, address = ?, city = ?,
+                contact_number = ?, authorized_person = ?, verified = ?
+            WHERE id = ?
+            """;
 
     private static final String DELETE_SQL = "DELETE FROM hospitals WHERE id = ?";
 
+    /** Inserts a hospital and returns its generated id. */
     @Override
     public Long create(HospitalUser hospital) throws DatabaseException {
         return withConnection(connection -> {
@@ -62,6 +84,7 @@ public class HospitalDaoImpl extends AbstractBaseDao implements HospitalDao {
         });
     }
 
+    /** Finds a hospital by primary key, or an empty Optional. */
     @Override
     public java.util.Optional<HospitalUser> findById(Long id) throws DatabaseException {
         if (id == null) {
@@ -77,6 +100,7 @@ public class HospitalDaoImpl extends AbstractBaseDao implements HospitalDao {
         });
     }
 
+    /** Returns all hospitals, ordered by city and name. */
     @Override
     public List<HospitalUser> findAll() throws DatabaseException {
         return withConnection(connection -> {
@@ -91,6 +115,7 @@ public class HospitalDaoImpl extends AbstractBaseDao implements HospitalDao {
         });
     }
 
+    /** Updates an existing hospital row and reports whether a row changed. */
     @Override
     public boolean update(HospitalUser hospital) throws DatabaseException {
         if (hospital == null || hospital.getId() == null) {
@@ -111,6 +136,7 @@ public class HospitalDaoImpl extends AbstractBaseDao implements HospitalDao {
         });
     }
 
+    /** Deletes the hospital with the given id, if one exists. */
     @Override
     public boolean delete(Long id) throws DatabaseException {
         if (id == null) {
@@ -137,6 +163,7 @@ public class HospitalDaoImpl extends AbstractBaseDao implements HospitalDao {
         });
     }
 
+    /** Returns whether the registration number is already on file. */
     @Override
     public boolean registrationNoExists(String registrationNo) throws DatabaseException {
         if (registrationNo == null || registrationNo.isBlank()) {
@@ -153,6 +180,7 @@ public class HospitalDaoImpl extends AbstractBaseDao implements HospitalDao {
         });
     }
 
+    /** Returns all hospitals in the given city. */
     @Override
     public List<HospitalUser> findByCity(String city) throws DatabaseException {
         if (city == null || city.isBlank()) {
@@ -187,6 +215,7 @@ public class HospitalDaoImpl extends AbstractBaseDao implements HospitalDao {
         });
     }
 
+    /** Returns the total hospital count. */
     @Override
     public long countAll() throws DatabaseException {
         return withConnection(connection -> {

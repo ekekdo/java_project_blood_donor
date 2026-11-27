@@ -89,6 +89,7 @@ public final class SessionUtil {
         return value instanceof Number number ? number.longValue() : null;
     }
 
+    /** Returns the signed-in user's role, or null when nobody is signed in. */
     public static Role getLoggedInRole(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) {
@@ -107,6 +108,7 @@ public final class SessionUtil {
         }
     }
 
+    /** Returns whether a user is currently signed in. */
     public static boolean isLoggedIn(HttpServletRequest request) {
         return getLoggedInUserId(request) != null;
     }

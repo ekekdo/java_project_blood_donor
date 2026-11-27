@@ -62,6 +62,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="${pageContext.request.contextPath}/index.jsp">Home</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/eligibility">Eligibility check</a>
+                </li>
             </ul>
 
             <ul class="navbar-nav align-items-lg-center">

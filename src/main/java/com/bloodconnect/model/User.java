@@ -59,66 +59,82 @@ public abstract class User {
 
     // ---- Standard getters/setters (encapsulation) ----
 
+    /** Returns the primary key. */
     public Long getId() {
         return id;
     }
 
+    /** Sets the primary key. */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /** Returns the full name. */
     public String getName() {
         return name;
     }
 
+    /** Sets the full name. */
     public void setName(String name) {
         this.name = name;
     }
 
+    /** Returns the email address. */
     public String getEmail() {
         return email;
     }
 
+    /** Sets the email address. */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /** Returns the phone number. */
     public String getPhone() {
         return phone;
     }
 
+    /** Sets the phone number. */
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
+    /** Returns the BCrypt password hash. */
     public String getPasswordHash() {
         return passwordHash;
     }
 
+    /** Sets the BCrypt password hash. */
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
 
+    /** Returns the role. */
     public Role getRole() {
         return role;
     }
 
+    /** Sets the role. */
     public void setRole(Role role) {
         this.role = role;
     }
 
+    /** Returns the account status. */
     public AccountStatus getStatus() {
         return status;
     }
 
+    /** Sets the account status. */
     public void setStatus(AccountStatus status) {
         this.status = status;
     }
 
+    /** Returns when the account was created. */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    /** Sets when the account was created. */
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }

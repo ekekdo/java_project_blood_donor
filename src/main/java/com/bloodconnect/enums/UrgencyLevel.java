@@ -21,14 +21,17 @@ public enum UrgencyLevel {
         this.displayName = displayName;
     }
 
+    /** Returns the explicit priority used for sorting. */
     public int getPriority() {
         return priority;
     }
 
+    /** Returns the human-readable urgency label. */
     public String getDisplayName() {
         return displayName;
     }
 
+    /** Parses a name, ignoring case and normalising separators. */
     public static UrgencyLevel fromString(String value) {
         if (value != null) {
             String v = value.trim().toUpperCase().replace('-', '_').replace(' ', '_');
